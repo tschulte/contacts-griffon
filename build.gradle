@@ -1,0 +1,76 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'org.akhikhl.wuff:wuff-plugin:0.0.10'
+    }
+}
+
+apply plugin: 'org.akhikhl.wuff.eclipse-config'
+
+wuff {
+    eclipseVersion('4.4') {
+        eclipseMavenGroup = 'eclipse-luna'
+        sources {
+            source 'http://download.eclipse.org/efxclipse/runtime-nightly/site_assembly.zip'
+        }
+    }
+}
+
+project(':org.eclipse.fx.demo.contacts.app') {
+    apply plugin: 'org.akhikhl.wuff.eclipse-rcp-app'
+    products {
+
+        launchParameters << '-application'
+        launchParameters << 'org.eclipse.fx.ui.workbench.fx.application'
+        launchParameters << '-vmargs'
+        launchParameters << '-Dosgi.framework.extensions=org.eclipse.fx.osgi'
+    }
+
+    run {
+        args = ['-consoleLog', '-console', '5555']
+        args.addAll(products.launchParameters)
+    }
+
+    dependencies {
+        compile project(':org.eclipse.fx.demo.contacts.edit')
+    }
+}
+
+project(':org.eclipse.fx.demo.contacts') {
+    apply plugin: 'org.akhikhl.wuff.eclipse-bundle'
+}
+project(':org.eclipse.fx.demo.contacts.edit') {
+    apply plugin: 'org.akhikhl.wuff.eclipse-bundle'
+    dependencies {
+        compile project(':org.eclipse.fx.demo.contacts')
+    }
+}
+
+
+subprojects {
+    apply plugin: 'java'
+
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+
+
+    dependencies {
+
+        def product = new XmlSlurper().parse(project(':org.eclipse.fx.demo.contacts.app').file('contacts.product'))
+
+        product.plugins.plugin.each {
+            def artifactId = it.@id.text()
+            if (!artifactId.startsWith('org.eclipse.fx.demo') && artifactId != 'org.eclipse.fx.ui.workbench.fx.controls')
+                runtime "$eclipseMavenGroup:$artifactId:+"
+        }
+
+        runtime "$eclipseMavenGroup:org.apache.commons.lang:+"
+        // for -console 5555 to work
+        runtime "$eclipseMavenGroup:org.eclipse.equinox.console:+"
+        runtime "$eclipseMavenGroup:org.apache.felix.gogo.runtime:+"
+        runtime "$eclipseMavenGroup:org.apache.felix.gogo.shell:+"
+        runtime "$eclipseMavenGroup:org.apache.felix.gogo.command:+"
+    }
+}

@@ -1,0 +1,6 @@
+include ':org.eclipse.fx.demo.contacts'
+include ':org.eclipse.fx.demo.contacts.app'
+include ':org.eclipse.fx.demo.contacts.edit'
+
+rootProject.name = 'contacts-griffon'
+
