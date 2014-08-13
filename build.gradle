@@ -51,22 +51,41 @@ project(':org.eclipse.fx.demo.contacts.edit') {
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'eclipse'
+    apply from: "$rootDir/gradle/javafx.gradle"
 
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
 
+    configurations {
+        compileOnly
+    }
+
+    sourceSets {
+        main {
+            compileClasspath += [project.configurations.compileOnly]
+        }
+    }
+
+    eclipse {
+        classpath {
+            plusConfigurations += [project.configurations.compileOnly]
+        }
+    }
 
     dependencies {
+        compileOnly project.files(project.jfxrtLocation)
 
         def product = new XmlSlurper().parse(project(':org.eclipse.fx.demo.contacts.app').file('contacts.product'))
 
         product.plugins.plugin.each {
             def artifactId = it.@id.text()
             if (!artifactId.startsWith('org.eclipse.fx.demo') && artifactId != 'org.eclipse.fx.ui.workbench.fx.controls')
-                runtime "$eclipseMavenGroup:$artifactId:+"
+                compile "$eclipseMavenGroup:$artifactId:+"
         }
 
-        runtime "$eclipseMavenGroup:org.apache.commons.lang:+"
+        compile "$eclipseMavenGroup:org.apache.commons.lang:+"
+
         // for -console 5555 to work
         runtime "$eclipseMavenGroup:org.eclipse.equinox.console:+"
         runtime "$eclipseMavenGroup:org.apache.felix.gogo.runtime:+"
