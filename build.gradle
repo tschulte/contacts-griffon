@@ -24,9 +24,11 @@ project(':org.eclipse.fx.demo.contacts.app') {
 
         launchParameters << '-application'
         launchParameters << 'org.eclipse.fx.ui.workbench.fx.application'
-        launchParameters << '-vmargs'
-        launchParameters << '-Dosgi.framework.extensions=org.eclipse.fx.osgi'
     }
+
+	tasks.withType(JavaExec) {
+		jvmArgs '-Dosgi.framework.extensions=org.eclipse.fx.osgi'
+	}
 
     run {
         args = ['-consoleLog', '-console', '5555']
@@ -80,11 +82,9 @@ subprojects {
 
         product.plugins.plugin.each {
             def artifactId = it.@id.text()
-            if (!artifactId.startsWith('org.eclipse.fx.demo') && artifactId != 'org.eclipse.fx.ui.workbench.fx.controls')
+            if (!artifactId.startsWith('org.eclipse.fx.demo'))
                 compile "$eclipseMavenGroup:$artifactId:+"
         }
-
-        compile "$eclipseMavenGroup:org.apache.commons.lang:+"
 
         // for -console 5555 to work
         runtime "$eclipseMavenGroup:org.eclipse.equinox.console:+"
