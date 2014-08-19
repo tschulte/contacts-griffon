@@ -19,32 +19,42 @@ wuff {
 }
 
 project(':org.eclipse.fx.demo.contacts.app') {
-    apply plugin: 'org.akhikhl.wuff.eclipse-rcp-app'
+    apply plugin: 'org.akhikhl.wuff.eclipse-equinox-app'
     products {
-
         launchParameters << '-application'
         launchParameters << 'org.eclipse.fx.ui.workbench.fx.application'
+        launchParameters << '-vmargs'
+        launchParameters << '-Dosgi.framework.extensions=org.eclipse.fx.osgi'
     }
-
-	tasks.withType(JavaExec) {
-		jvmArgs '-Dosgi.framework.extensions=org.eclipse.fx.osgi'
-	}
 
     run {
         args = ['-consoleLog', '-console', '5555']
         args.addAll(products.launchParameters)
     }
 
+    configurations {
+        osgiExtension
+    }
+
     dependencies {
+        osgiExtension "$eclipseMavenGroup:org.eclipse.fx.osgi:+"
+        compile project(':org.eclipse.fx.demo.contacts')
         compile project(':org.eclipse.fx.demo.contacts.edit')
+    }
+
+    afterEvaluate {
+        tasks.prepareRunConfig << {
+            File configIni = file("$buildDir/run/configuration/config.ini")
+            configIni.append "osgi.framework.extensions=reference\\:${configurations.osgiExtension.files[0].toURI()}"
+        }
     }
 }
 
 project(':org.eclipse.fx.demo.contacts') {
-    apply plugin: 'org.akhikhl.wuff.eclipse-bundle'
+    apply plugin: 'org.akhikhl.wuff.osgi-bundle'
 }
 project(':org.eclipse.fx.demo.contacts.edit') {
-    apply plugin: 'org.akhikhl.wuff.eclipse-bundle'
+    apply plugin: 'org.akhikhl.wuff.osgi-bundle'
     dependencies {
         compile project(':org.eclipse.fx.demo.contacts')
     }
@@ -61,6 +71,42 @@ subprojects {
 
     configurations {
         compileOnly
+        all {
+            exclude module: 'org.apache.batik.css'
+            exclude module: 'org.apache.batik.util'
+            exclude module: 'org.apache.batik.util.gui'
+            exclude module: 'org.eclipse.ant.core'
+            exclude module: 'org.eclipse.core.filesystem.linux.x86_64'
+            exclude module: 'org.eclipse.core.net'
+            exclude module: 'org.eclipse.core.net.linux.x86_64'
+            exclude module: 'org.eclipse.core.runtime.compatibility.registry'
+            exclude module: 'org.eclipse.core.variables'
+            exclude module: 'org.eclipse.e4.ui.bindings'
+            exclude module: 'org.eclipse.e4.ui.css.core'
+            exclude module: 'org.eclipse.e4.ui.css.swt'
+            exclude module: 'org.eclipse.e4.ui.css.swt.theme'
+            exclude module: 'org.eclipse.e4.ui.widgets'
+            exclude module: 'org.eclipse.e4.ui.workbench3'
+            exclude module: 'org.eclipse.e4.ui.workbench.addons.swt'
+            exclude module: 'org.eclipse.e4.ui.workbench.renderers.swt'
+            exclude module: 'org.eclipse.e4.ui.workbench.swt'
+            exclude module: 'org.eclipse.equinox.bidi'
+            exclude module: 'org.eclipse.equinox.launcher.gtk.linux.x86_64'
+            exclude module: 'org.eclipse.equinox.security'
+            exclude module: 'org.eclipse.help'
+            exclude module: 'org.eclipse.jface'
+            exclude module: 'org.eclipse.jface.databinding'
+            exclude module: 'org.eclipse.osgi.compatibility.state'
+            exclude module: 'org.eclipse.swt'
+            exclude module: 'org.eclipse.swt.gtk.linux.x86_64'
+            exclude module: 'org.eclipse.ui'
+            exclude module: 'org.eclipse.ui.views'
+            exclude module: 'org.eclipse.ui.workbench'
+            exclude module: 'org.w3c.css.sac'
+            exclude module: 'org.w3c.dom.events'
+            exclude module: 'org.w3c.dom.smil'
+            exclude module: 'org.w3c.dom.svg'
+        }
     }
 
     sourceSets {
@@ -82,7 +128,7 @@ subprojects {
 
         product.plugins.plugin.each {
             def artifactId = it.@id.text()
-            if (!artifactId.startsWith('org.eclipse.fx.demo'))
+            if (!artifactId.startsWith('org.eclipse.fx.demo') && artifactId != 'org.eclipse.fx.osgi')
                 compile "$eclipseMavenGroup:$artifactId:+"
         }
 
