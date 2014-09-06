@@ -3,7 +3,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'org.akhikhl.wuff:wuff-plugin:0.0.10'
+        classpath 'org.akhikhl.wuff:wuff-plugin:0.0.12'
     }
 }
 
@@ -21,15 +21,18 @@ wuff {
 project(':org.eclipse.fx.demo.contacts.app') {
     apply plugin: 'org.akhikhl.wuff.eclipse-equinox-app'
     products {
-        launchParameters << '-application'
-        launchParameters << 'org.eclipse.fx.ui.workbench.fx.application'
-        launchParameters << '-vmargs'
-        launchParameters << '-Dosgi.framework.extensions=org.eclipse.fx.osgi'
+        launchParameter '-application'
+        launchParameter 'org.eclipse.fx.ui.workbench.fx.application'
+        launchParameter '-vmargs'
+        launchParameter '-Dosgi.framework.extensions=org.eclipse.fx.osgi'
     }
 
     run {
-        args = ['-consoleLog', '-console', '5555']
+        arg '-consoleLog'
+        arg '-console'
+        arg '5555'
         args.addAll(products.launchParameters)
+//        jvmArgs.addAll(products.jvmArgs)
     }
 
     configurations {
@@ -38,7 +41,6 @@ project(':org.eclipse.fx.demo.contacts.app') {
 
     dependencies {
         osgiExtension "$eclipseMavenGroup:org.eclipse.fx.osgi:+"
-        compile project(':org.eclipse.fx.demo.contacts')
         compile project(':org.eclipse.fx.demo.contacts.edit')
     }
 
