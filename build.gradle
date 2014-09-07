@@ -128,6 +128,9 @@ subprojects {
 
         product.plugins.plugin.each {
             def artifactId = it.@id.text()
+            // add all dependencies from product file, but exclude demo projects and org.eclipse.fx.ogi
+            // org.eclipse.fx.osgi must be excluded, because it must not be referenced in config.ini under osgi.bundles
+            // but under osgi.framework.extensions
             if (!artifactId.startsWith('org.eclipse.fx.demo') && artifactId != 'org.eclipse.fx.osgi')
                 compile "$eclipseMavenGroup:$artifactId:+"
         }
