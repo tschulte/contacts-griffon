@@ -22,8 +22,6 @@ wuff {
 project(':org.eclipse.fx.demo.contacts.app') {
     apply plugin: 'org.akhikhl.wuff.eclipse-equinox-app'
     products {
-        launchParameter '-application'
-        launchParameter 'org.eclipse.fx.ui.workbench.fx.application'
         launchParameter '-vmargs'
         launchParameter '-Dosgi.framework.extensions=org.eclipse.fx.osgi'
     }
