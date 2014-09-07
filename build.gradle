@@ -21,6 +21,12 @@ wuff {
 
 project(':org.eclipse.fx.demo.contacts.app') {
     apply plugin: 'org.akhikhl.wuff.eclipse-equinox-app'
+    tasks.jar {
+        manifest {
+            instruction 'Bundle-Activator', 'org.eclipse.fx.demo.contacts.BundleActivatorImpl'
+            instruction 'Service-Component', 'OSGI-INF/component.xml'
+        }
+    }
     products {
         launchParameter '-vmargs'
         launchParameter '-Dosgi.framework.extensions=org.eclipse.fx.osgi'
@@ -55,6 +61,11 @@ project(':org.eclipse.fx.demo.contacts') {
 }
 project(':org.eclipse.fx.demo.contacts.edit') {
     apply plugin: 'org.akhikhl.wuff.osgi-bundle'
+    jar {
+        manifest {
+            instruction 'Bundle-Activator', 'org.eclipse.fx.demo.contacts.provider.ContactsEditPlugin$Implementation'
+        }
+    }
     dependencies {
         compile project(':org.eclipse.fx.demo.contacts')
     }
