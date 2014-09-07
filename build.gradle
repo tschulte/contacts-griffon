@@ -27,11 +27,10 @@ project(':org.eclipse.fx.demo.contacts.app') {
     }
 
     run {
-        arg '-consoleLog'
         arg '-console'
         arg '5555'
         args.addAll(products.launchParameters)
-//        jvmArgs.addAll(products.jvmArgs)
+        jvmArgs.addAll(products.jvmArgs)
     }
 
     configurations {
